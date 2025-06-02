@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -16,23 +15,102 @@ const EditPublicationPage = () => {
   const navigate = useNavigate();
   const [publication, setPublication] = useState<Publication | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
+  // useEffect para carregar dados da publicação via API do ORCID
   useEffect(() => {
     const fetchPublication = async () => {
       setLoading(true);
-      // In a real app, fetch from API using the ID
-      // Here we're using mock data
-      setTimeout(() => {
-        const foundPub = mockResearcherData.publications.find((p, index) => index.toString() === id);
-        if (foundPub) {
-          setPublication(JSON.parse(JSON.stringify(foundPub)));
-        }
+      try {
+        /* TODO: Substituir por busca real na API do ORCID
+         * 1. Fazer fetch para: https://pub.orcid.org/v3.0/{orcid-id}/work/{put-code}
+         * 2. Headers: Authorization: Bearer {access-token}, Accept: application/json
+         * 3. Mapear dados para interface Publication
+         * 
+         * Exemplo:
+         * const orcidId = getCurrentUserOrcidId();
+         * const accessToken = getAccessToken();
+         * 
+         * const response = await fetch(`https://pub.orcid.org/v3.0/${orcidId}/work/${id}`, {
+         *   headers: {
+         *     'Authorization': `Bearer ${accessToken}`,
+         *     'Accept': 'application/json'
+         *   }
+         * });
+         * const data = await response.json();
+         * setPublication(mapOrcidWorkToPublication(data));
+         */
+        
+        // Simulação com dados mockados
+        console.log(`Carregando publicação ${id}...`);
+        setTimeout(() => {
+          const foundPub = mockResearcherData.publications.find((p, index) => index.toString() === id);
+          if (foundPub) {
+            setPublication(JSON.parse(JSON.stringify(foundPub)));
+          }
+          setLoading(false);
+        }, 500);
+      } catch (error) {
+        console.error('Erro ao carregar publicação:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os dados da publicação.",
+          variant: "destructive"
+        });
         setLoading(false);
-      }, 500);
+      }
     };
 
     fetchPublication();
   }, [id]);
+
+  const handleSave = async () => {
+    if (!publication) return;
+    setSaving(true);
+    
+    try {
+      /* TODO: Implementar salvamento via API do ORCID
+       * 1. Mapear dados da interface Publication para formato ORCID Work
+       * 2. Fazer PUT request para: https://api.orcid.org/v3.0/{orcid-id}/work/{put-code}
+       * 3. Headers: Authorization: Bearer {access-token}, Content-Type: application/json
+       * 
+       * Exemplo:
+       * const workData = mapPublicationToOrcidWork(publication);
+       * 
+       * const response = await fetch(`https://api.orcid.org/v3.0/${orcidId}/work/${id}`, {
+       *   method: 'PUT',
+       *   headers: {
+       *     'Authorization': `Bearer ${accessToken}`,
+       *     'Content-Type': 'application/json'
+       *   },
+       *   body: JSON.stringify(workData)
+       * });
+       * 
+       * if (!response.ok) {
+       *   throw new Error('Erro ao salvar publicação');
+       * }
+       */
+      
+      // Simulação de salvamento
+      console.log('Salvando alterações da publicação...', publication);
+      setTimeout(() => {
+        toast({
+          title: "Publicação salva",
+          description: "As alterações foram salvas com sucesso.",
+        });
+        setSaving(false);
+        navigate(-1);
+      }, 1000);
+    } catch (error) {
+      console.error('Erro ao salvar publicação:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar as alterações.",
+        variant: "destructive"
+      });
+      setSaving(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -98,19 +176,10 @@ const EditPublicationPage = () => {
     });
   };
 
-  const handleSave = () => {
-    // In a real app, send to API
-    toast({
-      title: "Publicação salva",
-      description: "As alterações foram salvas com sucesso.",
-    });
-    navigate(-1);
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center">
-        <p>Carregando...</p>
+        <p>Carregando dados da publicação...</p>
       </div>
     );
   }
@@ -333,8 +402,13 @@ const EditPublicationPage = () => {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSave} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
-              <Save size={18} /> Salvar alterações
+            <Button 
+              onClick={handleSave} 
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              disabled={saving}
+            >
+              <Save size={18} /> 
+              {saving ? 'Salvando...' : 'Salvar alterações'}
             </Button>
           </div>
         </div>
