@@ -1,18 +1,23 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search as SearchIcon, User, Users, Building, BookOpen, Calendar } from 'lucide-react';
-import { mockResearchers } from '../data/mockData';
 import { Researcher } from '../types';
 import { useNavigate } from 'react-router-dom';
 
-const Search = () => {
+// Interface para definir quais props este componente recebe do App
+interface SearchProps {
+  researchers: Researcher[];
+  loading: boolean;
+}
+
+const Search = ({ researchers, loading }: SearchProps) => {
+  // Estado local para controlar a busca
   const [searchQuery, setSearchQuery] = useState('');
-  const [researchers, setResearchers] = useState<Researcher[]>(mockResearchers);
   const navigate = useNavigate();
 
+  // Filtra pesquisadores baseado na busca do usuário
   const filteredResearchers = researchers.filter(researcher => {
     if (!searchQuery) return true;
     
@@ -24,14 +29,25 @@ const Search = () => {
     );
   });
 
+  // Função para navegar para o perfil de um pesquisador
   const viewProfile = (orcidId: string) => {
     navigate(`/researcher/${orcidId}`);
   };
+
+  // Se está carregando, mostra tela de loading
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
+        <p className="text-lg text-gray-600">Carregando pesquisadores...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <h1 className="text-2xl font-bold text-blue-800 mb-6">Buscar Pesquisadores</h1>
       
+      {/* Card com campo de busca */}
       <Card className="p-6 bg-white border-blue-100 mb-8">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
@@ -46,6 +62,7 @@ const Search = () => {
         </div>
       </Card>
       
+      {/* Lista de pesquisadores filtrados */}
       <div className="space-y-6">
         {filteredResearchers.map(researcher => (
           <Card 
@@ -114,6 +131,7 @@ const Search = () => {
           </Card>
         ))}
         
+        {/* Mensagem quando nenhum pesquisador é encontrado */}
         {filteredResearchers.length === 0 && (
           <div className="text-center py-10">
             <User className="h-16 w-16 mx-auto text-gray-300 mb-4" />
