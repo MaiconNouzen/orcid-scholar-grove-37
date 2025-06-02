@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,21 +23,23 @@ import { Researcher } from "./types";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Estado central - dados dos pesquisadores ficam aqui no App
+  // Estados centrais - dados dos pesquisadores ficam aqui no App
   const [currentResearcher, setCurrentResearcher] = useState<Researcher>(mockResearcherData as Researcher);
   const [allResearchers, setAllResearchers] = useState<Researcher[]>(mockResearchers);
   const [loading, setLoading] = useState(false);
 
   // Função para buscar dados de um pesquisador específico
-  const getResearcherById = (id: string): Researcher | null => {
+  // Usando useCallback para evitar recriação desnecessária
+  const getResearcherById = useCallback((id: string): Researcher | null => {
     if (id === 'current') {
       return currentResearcher;
     }
     return allResearchers.find(r => r.orcidId === id) || null;
-  };
+  }, [currentResearcher, allResearchers]);
 
   // Função para simular carregamento de dados
-  const loadResearcherData = (id: string, callback: (researcher: Researcher | null) => void) => {
+  // Usando useCallback para estabilizar a função
+  const loadResearcherData = useCallback((id: string, callback: (researcher: Researcher | null) => void) => {
     setLoading(true);
     // Simula uma chamada de API com delay
     setTimeout(() => {
@@ -46,7 +47,7 @@ const App = () => {
       callback(researcher);
       setLoading(false);
     }, 500);
-  };
+  }, [getResearcherById]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -28,10 +27,11 @@ const ResearcherProfilePage = ({ getResearcherById, loadResearcherData, loading 
   const [isCurrentUser, setIsCurrentUser] = useState(false);
 
   // Efeito que roda quando o componente carrega ou o ID muda
+  // Removemos loadResearcherData das dependências para evitar loop infinito
   useEffect(() => {
     if (!id) return;
 
-    // Usa a função do App para carregar os dados
+    // Marca que está carregando e carrega os dados
     loadResearcherData(id, (loadedResearcher) => {
       if (loadedResearcher) {
         setResearcher(loadedResearcher);
@@ -46,7 +46,7 @@ const ResearcherProfilePage = ({ getResearcherById, loadResearcherData, loading 
         });
       }
     });
-  }, [id, loadResearcherData]);
+  }, [id]); // Apenas 'id' como dependência para evitar loop infinito
 
   // Tela de carregamento
   if (loading) {
