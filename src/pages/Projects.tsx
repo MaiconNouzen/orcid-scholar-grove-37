@@ -71,7 +71,10 @@ const Projects = ({ projects, publications, loading }: ProjectsProps) => {
       {/* Cabeçalho da página */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold text-blue-800 mb-4 md:mb-0">Meus Projetos de Pesquisa</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => navigate('/new-project')}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Novo Projeto
         </Button>

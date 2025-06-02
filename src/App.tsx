@@ -17,6 +17,8 @@ import EditPublicationPage from "./pages/EditPublicationPage";
 import EditProjectPage from "./pages/EditProjectPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import NewPublicationPage from "./pages/NewPublicationPage";
+import NewProjectPage from "./pages/NewProjectPage";
 import { mockResearcherData, mockResearchers } from "./data/mockData";
 import { Researcher } from "./types";
 
@@ -98,6 +100,8 @@ const App = () => {
                 } 
               />
               <Route path="/edit-profile" element={<EditProfile />} />
+              <Route path="/new-publication" element={<NewPublicationPage />} />
+              <Route path="/new-project" element={<NewProjectPage />} />
               <Route 
                 path="/researcher/:id" 
                 element={

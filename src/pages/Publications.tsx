@@ -46,7 +46,10 @@ const Publications = ({ publications, loading }: PublicationsProps) => {
       {/* Cabeçalho da página */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold text-blue-800 mb-4 md:mb-0">Minhas Publicações</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => navigate('/new-publication')}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nova Publicação
         </Button>
