@@ -5,57 +5,50 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
-import { mockResearchers, mockResearcherData } from '../data/mockData';
 import { Researcher } from '../types';
 import ResearcherProfile from '../components/ResearcherProfile';
 import OtherResearcherPublications from '../components/OtherResearcherPublications';
 import OtherResearcherProjects from '../components/OtherResearcherProjects';
 import { toast } from '@/components/ui/use-toast';
 
-const ResearcherProfilePage = () => {
+// Props que esta página recebe do App
+interface ResearcherProfilePageProps {
+  getResearcherById: (id: string) => Researcher | null;
+  loadResearcherData: (id: string, callback: (researcher: Researcher | null) => void) => void;
+  loading: boolean;
+}
+
+const ResearcherProfilePage = ({ getResearcherById, loadResearcherData, loading }: ResearcherProfilePageProps) => {
+  // Pega o ID da URL
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Estados locais desta página
   const [researcher, setResearcher] = useState<Researcher | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
 
+  // Efeito que roda quando o componente carrega ou o ID muda
   useEffect(() => {
-    const fetchResearcher = async () => {
-      setLoading(true);
-      try {
-        setTimeout(() => {
-          if (id === 'current') {
-            setResearcher(mockResearcherData as Researcher);
-            setIsCurrentUser(true);
-          } else {
-            const found = mockResearchers.find(r => r.orcidId === id);
-            if (found) {
-              setResearcher(found);
-              setIsCurrentUser(false);
-            } else {
-              setResearcher(null);
-              toast({
-                title: "Pesquisador não encontrado",
-                description: "Não foi possível encontrar um pesquisador com o ID fornecido.",
-                variant: "destructive"
-              });
-            }
-          }
-          setLoading(false);
-        }, 500);
-      } catch (error) {
+    if (!id) return;
+
+    // Usa a função do App para carregar os dados
+    loadResearcherData(id, (loadedResearcher) => {
+      if (loadedResearcher) {
+        setResearcher(loadedResearcher);
+        setIsCurrentUser(id === 'current');
+      } else {
+        setResearcher(null);
+        // Mostra mensagem de erro
         toast({
-          title: "Erro ao carregar perfil",
-          description: "Ocorreu um erro ao carregar os dados do pesquisador.",
+          title: "Pesquisador não encontrado",
+          description: "Não foi possível encontrar um pesquisador com o ID fornecido.",
           variant: "destructive"
         });
-        setLoading(false);
       }
-    };
+    });
+  }, [id, loadResearcherData]);
 
-    fetchResearcher();
-  }, [id]);
-
+  // Tela de carregamento
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
@@ -66,6 +59,7 @@ const ResearcherProfilePage = () => {
     );
   }
 
+  // Tela de erro quando pesquisador não é encontrado
   if (!researcher) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -80,10 +74,11 @@ const ResearcherProfilePage = () => {
     );
   }
 
-  // Se for o usuário atual, renderiza como antes
+  // Se for o usuário atual (perfil próprio)
   if (isCurrentUser) {
     return (
       <div className="min-h-screen bg-gray-50 pt-6">
+        {/* Botão voltar */}
         <div className="container mx-auto px-4 mb-6">
           <Button 
             variant="outline" 
@@ -93,14 +88,17 @@ const ResearcherProfilePage = () => {
             <ArrowLeft size={16} /> Voltar
           </Button>
         </div>
-        <ResearcherProfile researcherId={id || 'current'} isEditable={isCurrentUser} />
+        
+        {/* Perfil editável */}
+        <ResearcherProfile researcher={researcher} isEditable={true} />
       </div>
     );
   }
 
-  // Para outros pesquisadores, renderiza com tabs
+  // Para outros pesquisadores (não editável, com tabs)
   return (
     <div className="min-h-screen bg-gray-50 pt-6">
+      {/* Botão voltar */}
       <div className="container mx-auto px-4 mb-6">
         <Button 
           variant="outline" 
@@ -112,6 +110,7 @@ const ResearcherProfilePage = () => {
       </div>
 
       <div className="container mx-auto px-4">
+        {/* Tabs para navegar entre seções */}
         <Tabs defaultValue="perfil" className="w-full">
           <TabsList className="mb-6 bg-blue-50 border border-blue-100">
             <TabsTrigger value="perfil">Perfil</TabsTrigger>
@@ -119,8 +118,9 @@ const ResearcherProfilePage = () => {
             <TabsTrigger value="projetos">Projetos</TabsTrigger>
           </TabsList>
           
+          {/* Conteúdo de cada tab */}
           <TabsContent value="perfil" className="mt-0">
-            <ResearcherProfile researcherId={id || ''} isEditable={false} />
+            <ResearcherProfile researcher={researcher} isEditable={false} />
           </TabsContent>
           
           <TabsContent value="publicacoes" className="mt-0">
@@ -128,7 +128,10 @@ const ResearcherProfilePage = () => {
           </TabsContent>
           
           <TabsContent value="projetos" className="mt-0">
-            <OtherResearcherProjects projects={researcher.projects} publications={researcher.publications} />
+            <OtherResearcherProjects 
+              projects={researcher.projects} 
+              publications={researcher.publications} 
+            />
           </TabsContent>
         </Tabs>
       </div>
