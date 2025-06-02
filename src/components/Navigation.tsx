@@ -74,8 +74,8 @@ const Navigation = () => {
       
       {/* Mobile navigation */}
       <div className="md:hidden border-t border-gray-200">
-        <div className="grid grid-cols-5">
-          {navItems.slice(0, 5).map((item) => {
+        <div className="grid grid-cols-6 gap-1">
+          {navItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = location.pathname === item.path;
             
@@ -83,12 +83,12 @@ const Navigation = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center py-2 ${
+                className={`flex flex-col items-center py-2 px-1 ${
                   isActive ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
                 }`}
               >
-                <IconComponent className="h-6 w-6" />
-                <span className="text-xs mt-1">{item.label}</span>
+                <IconComponent className="h-5 w-5" />
+                <span className="text-xs mt-1 text-center leading-tight">{item.label}</span>
               </Link>
             );
           })}
